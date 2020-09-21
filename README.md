@@ -1,8 +1,8 @@
 ## 提取函数
-    1. extrvct.internship.itn_time_org_pos_depict(exp_string)
-        输入为校外经历字符串，输出为经历列表，每个元素是四元组(time,org,pos,depict)
-    2. extract.campus.cps_time_pos_depict(exp_string)
-        输入为校内经历字符串，输出为经历列表，每个元素是三元组(time,pos,depict)
+    1. extrvct.internship.itn_time_com_pos_desp(exp_string)
+        输入为校外经历字符串，输出为经历列表，每个元素是字典类型time,org,pos,desp
+    2. extract.campus.cps_time_pos_desp(exp_string)
+        输入为校内经历字符串，输出为经历列表，每个元素是字典类型，包含三项time,pos,desp
 ## 依赖包
     pip install lac
 ## 其他

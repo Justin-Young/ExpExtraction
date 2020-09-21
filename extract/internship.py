@@ -14,6 +14,8 @@ from extract.resume import *
 去题头(已弃用，换用后续处理方式）    r'^[\s ]*^[\s ]*((工作)|(实习)|(项目)|(校外)|(实践))?((经[历验])|(实践)|(实习)|(活动)|(工作))[ \t]*\n'
 公司机构的识别可以使用HanLP（基于bert，识别最好，较慢），其次stanza和lac
 
+进一步想法：如果要求每个信息尽可能不为空，提取更加全面，可以对提取到的信息进行二次加工提取，譬如时间为空，可以在二级提取中更换时间模式，进行匹配
+
 """
 
 itn_pattern_pos = re.compile(
@@ -151,12 +153,12 @@ def preprocess(string):
     return re.split(r'(?:[ \t]+)', string)
 
 
-def itn_time_org_pos_depict(exp_string):
+def itn_time_com_pos_desp(exp_string):
     """
-    获取每段经历的时间、公司、岗位、描述
+    获取每段经历的时间、公司、岗位、描述，返回经历的列表，每个经历是一个字典
 
     :param exp_string: 校外经历字符串
-    :return: 提取的对应信息的列表，每个列表是一个四元组
+    :return: 每个字典包含四项time, com, pos, desp
     """
     exp_list = split_by_time(exp_string, itn_pattern_time, itn_pattern_org, itn_pattern_pos)
     extract_list = []
@@ -169,7 +171,8 @@ def itn_time_org_pos_depict(exp_string):
         time = None
         org = None
         pos = None
-        depict = None
+        desp = None
+        head = ['time', 'com', 'pos', 'desp']
         # 一行包括多个信息的情况
         if len(first_list) >= 2:
             for idx, item in enumerate(first_list):
@@ -183,8 +186,8 @@ def itn_time_org_pos_depict(exp_string):
                 #  这里进行了一个猜测 若前几个都不是，猜测为pos
                 elif pos is None:
                     pos = item
-            depict = '\n'.join(exp[1:])
-            # print([time, org, pos], '\n', depict)
+            desp = '\n'.join(exp[1:])
+            # print([time, org, pos], '\n', desp)
         # 一行不到三者的情况
         elif len(first_list) == 1:
             # 每段基本上开头都是时间，判断可不加
@@ -204,10 +207,11 @@ def itn_time_org_pos_depict(exp_string):
                     elif pos is None:
                         pos = item
             if len(exp) > 2:
-                depict = '\n'.join(exp[2:])
-            # print([time, org, pos], '\n', depict)
-        if sum([x is not None for x in [time, org, pos, depict]]) >= 2:
-            extract_list.append((time, org, pos, depict))
+                desp = '\n'.join(exp[2:])
+            # print([time, org, pos], '\n', desp)
+        if sum([x is not None for x in [time, org, pos, desp]]) >= 2:
+            # extract_list.append((time, org, pos, desp))
+            extract_list.append(dict(zip(head, [time, org, pos, desp])))
     for item in extract_list:
         print(item)
     print(len(extract_list))
@@ -218,7 +222,7 @@ def debug():
     # print(is_position("法律助理"))
     # print(is_company("富士康科技园"))
     for exp_string in exp_string_list:
-        itn_time_org_pos_depict(exp_string)
+        itn_time_com_pos_desp(exp_string)
 
 
 if __name__ == '__main__':
