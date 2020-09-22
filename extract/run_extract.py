@@ -12,7 +12,7 @@ def extract_from_file(file_path, itn_label='InternExp', cps_label='CampusExp'):
     :return: 返回一个元组，校外经历和校内经历，每个经历是一个列表，其元素是一个字典，
              校外经历为四项 time、com、pos、desp,校内为三项 time、pos、desp
     """
-    with open(file_path, 'r') as f:
+    with open(file_path, 'r', encoding='utf-8') as f:
         txt = f.read()
         sentns = txt.split('\n')
         itn_exp = []
@@ -20,17 +20,28 @@ def extract_from_file(file_path, itn_label='InternExp', cps_label='CampusExp'):
         itn = None
         cps = None
         for item in sentns:
-            lbl, sentn = item.split('\t')
-            if lbl == itn_label:
-                itn_exp.append(sentn)
-            elif lbl == cps_label:
-                cps_exp.append(sentn)
+            temp = re.split(r'(?:(?: {4,})|(?:\t+))', item, maxsplit=1)
+            # print("item:", item)
+            # print("temp:", temp)
+            if len(temp) >= 2:
+                lbl = temp[0]
+                sentn = temp[1]
+                # print("lbl:", lbl)
+                # print("sentn", sentn)
+                if sentn is not None:
+                    if lbl.find(itn_label) != -1 :
+                        itn_exp.append(sentn)
+                    elif lbl.find(cps_label) != -1 :
+                        cps_exp.append(sentn)
     if len(itn_exp):
+        # print("itn_exp", itn_exp)
         itn = itn_time_com_pos_desp('\n'.join(itn_exp))
     if len(cps_exp):
+        # print("cps_exp", cps_exp)
         cps = cps_time_pos_desp('\n'.join(cps_exp))
     return itn, cps
 
 
 if __name__ == '__main__':
-    print()
+    extract_from_file('../other/1.txt')
+    extract_from_file('../other/0.txt')
